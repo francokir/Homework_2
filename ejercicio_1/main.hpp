@@ -13,7 +13,20 @@ public:
     Tiempo (int horas, int minutos);
     Tiempo (int horas,int minutos, int segundos);
     Tiempo (int horas,int minutos, int segundos, string parte_dia);
-    void set_tiempo();
+    
+    int getHoras() const;
+    int getMinutos() const;
+    int getSegundos() const;
+    string getParteDia() const;
+    string getTiempoCompleto() const;
+
+    void setHoras(int h);
+    void setMinutos(int m);
+    void setSegundos(int s);
+    void setParteDia(const string& pd);
+    void tiempo24hs() const;
+    
+
     
 
 
