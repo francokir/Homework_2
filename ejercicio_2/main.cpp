@@ -88,15 +88,15 @@ void curso::imprimirLista() const {
     }
 }
 
+/*Para la copia implemente un shallow copy, copio el vector de punteros estudiantes pero no duplico los objetos
+apuntados. Esto significa que ambos cursos apuntan a los mismos estudiantes. Crei conveniente esta eleccion
+ya que es eficiente en memoria y permite que los cambios en un estudiante se vean en todos los cursos que lo incluyen*/
+
 curso::curso(const curso& otro)
     : nombrecurso(otro.nombrecurso), estudiantes(otro.estudiantes) {
-    // Justificación:
-    // Esta es una COPIA SUPERFICIAL (shallow copy). 
-    // Copiamos el vector de punteros `estudiantes`, pero no duplicamos los objetos apuntados.
-    // Esto significa que ambos cursos apuntan a los mismos estudiantes. 
-    // Es eficiente en memoria y permite que los cambios en un estudiante se reflejen en todos los cursos que lo incluyen.
 }
 
+/*Para ello sobrecargo el operador '=' "igual" que hace que si ya es igual devuelve*/
 curso& curso::operator=(const curso& otro) {
     if (this == &otro) return *this;
 
