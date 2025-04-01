@@ -17,25 +17,31 @@ public:
     int getLegajo() const;
     float getPromedioGeneral() const;
 
-
     void agregarCurso(const string& nombreCurso, float nota);
+
+    bool operator<(const estudiante& otro) const;
+
+    friend ostream& operator<<(ostream& os, const estudiante& est);
 };
 
 class curso {
 private:
     vector<estudiante*> estudiantes;
     static const int capacidad_maxima = 20; 
-
+    string nombrecurso;
 public:
-    bool inscribirEstudiante(estudiante* est);
 
-    bool desinscribirEstudiante(int legajo);
+    curso(const string& nombre);
 
-    bool estaInscripto(int legajo);
+    curso(const curso& otro);
 
-    bool estaCompleto();
+    curso& operator=(const curso& otro);
     
-    void imprimirLista();
+    bool inscribirEstudiante(estudiante* est);
+    bool desinscribirEstudiante(int legajo);
+    bool estaInscripto(int legajo);
+    bool estaCompleto();
+    void imprimirLista() const;
 
-    curso* copiarCurso();
+    curso* copiarCurso() const;
 };

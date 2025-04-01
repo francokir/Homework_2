@@ -1,7 +1,13 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include "main.hpp"
 using namespace std;
+
+estudiante::estudiante(string nombre, int legajo) {
+    nombre_completo = nombre;
+    this->legajo = legajo;
+}
 
 string estudiante::getNombreCompleto()const {
     return nombre_completo;
@@ -19,6 +25,178 @@ float estudiante::getPromedioGeneral() const {
         return suma / cursos.size();
 }
 
-void estudiante::agregarCurso(const string& nombreCurso, float nota) {
-    cursos.push_back({nombreCurso, nota}); 
+void estudiante::agregarCurso(const string& nombrecurso, float nota) {
+    cursos.push_back({nombrecurso, nota}); 
+}
+
+
+
+curso::curso(const string& nombre) {
+    nombrecurso = nombre;
+}
+
+bool curso::inscribirEstudiante(estudiante* est){
+    if (estudiantes.size() < capacidad_maxima){
+        estudiantes.push_back(est);
+        return true;
+        }
+    else {
+        return false;
+    }
+}
+
+bool curso::estaInscripto(int legajo){
+    for (const auto &est : estudiantes) {
+        if (est->getLegajo() == legajo) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool curso::estaCompleto(){
+    return (curso::capacidad_maxima == estudiantes.size());
+}
+
+bool curso::desinscribirEstudiante(int legajo){
+    for (auto it = estudiantes.begin(); it != estudiantes.end(); ++it) {
+        if ((*it)->getLegajo() == legajo) {
+            estudiantes.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool estudiante::operator<(const estudiante& otro) const {
+    return nombre_completo < otro.nombre_completo;
+}
+
+ostream& operator<<(ostream& os, const estudiante& est) {
+    os << "Nombre: " << est.nombre_completo << ", Legajo: " << est.legajo;
+    return os;
+}
+
+void curso::imprimirLista() const {
+    vector<estudiante*> estudiantesOrdenados = estudiantes;
+    sort(estudiantesOrdenados.begin(), estudiantesOrdenados.end(), [](estudiante* a, estudiante* b) {
+                  return *a < *b;
+        });
+    cout << "Estudiantes en orden alfabético:\n";
+    for (const auto& est : estudiantesOrdenados) {
+        cout << *est << endl;
+    }
+}
+
+curso::curso(const curso& otro)
+    : nombrecurso(otro.nombrecurso), estudiantes(otro.estudiantes) {
+    // Justificación:
+    // Esta es una COPIA SUPERFICIAL (shallow copy). 
+    // Copiamos el vector de punteros `estudiantes`, pero no duplicamos los objetos apuntados.
+    // Esto significa que ambos cursos apuntan a los mismos estudiantes. 
+    // Es eficiente en memoria y permite que los cambios en un estudiante se reflejen en todos los cursos que lo incluyen.
+}
+
+curso& curso::operator=(const curso& otro) {
+    if (this == &otro) return *this;
+
+    nombrecurso = otro.nombrecurso;
+    estudiantes = otro.estudiantes; 
+
+    return *this;
+}
+
+curso* curso::copiarCurso() const {
+    return new curso(*this);
+}
+
+/* c. ¿Qué tipo de relación existe entre los objetos curso y estudiante?
+    La relación entre curso y estudiante es de Agregación en mi implementacion.
+    Mi clase curso lo que almacena son objetos estudiante, con punteros *. Es un vector , el curso tiene acceso
+    a los estudiantes pero no es propietario. Existe uno independientemente del otro, la destruccion de un curso
+    no implica la destruccion de los objetos estudiante almacenados, pueden ser compartidos por otros cursos.
+    Ademas, como dije recien algunos cursos comparten la mayor parte de los estudiantes, los punteros hacen posible
+    esto ya que un mismo estudiante puede ser referenciado por multiples cursos, sin duplicar datos.
+*/
+
+int main() {
+    curso miCurso("Paradigmas de Programación");
+
+    while (true) {
+        cout << "\n--- Menu Principal ---\n";
+        cout << "1. Inscribir un estudiante\n";
+        cout << "2. Desinscribir un estudiante\n";
+        cout << "3. Verificar si un estudiante está inscripto\n";
+        cout << "4. Imprimir lista de estudiantes (orden alfabético)\n";
+        cout << "5. Copiar curso\n";
+        cout << "6. Salir\n";
+        cout << "Ingrese una opción: ";
+
+        int opcion;
+        cin >> opcion;
+
+        if (opcion == 6) break;
+
+        switch (opcion) {
+            case 1: {
+                string nombre;
+                int legajo;
+                cout << "Ingresar nombre completo del estudiante: ";
+                getline(cin, nombre);
+                cout << "Ingresar legajo del estudiante: ";
+                cin >> legajo;
+
+                estudiante* nuevoEstudiante = new estudiante(nombre, legajo);
+
+                if (miCurso.inscribirEstudiante(nuevoEstudiante)) {
+                    cout << "Estudiante inscripto.\n";
+                } else {
+                    cout << "El curso llego a su capacidad maxima, no se pudo inscribir al estudiante.\n";
+                    delete nuevoEstudiante;
+                }
+                break;
+            }
+
+            case 2: {
+                int legajo;
+                cout << "Ingresar el legajo del estudiante que quiere desinscribir: ";
+                cin >> legajo;
+
+                if (miCurso.desinscribirEstudiante(legajo)) {
+                    cout << "el studiante fue desinscripto.\n";
+                } else {
+                    cout << "No existe un estudiante con ese legajo.\n";
+                }
+                break;
+            }
+
+            case 3: {
+                int legajo;
+                cout << "Ingresar el legajo del estudiante que quiere verificar su inscripcion: ";
+                cin >> legajo;
+
+                if (miCurso.estaInscripto(legajo)) {
+                    cout << "El estudiante está inscripto.\n";
+                } else {
+                    cout << "El estudiante no está inscripto.\n";
+                }
+                break;
+            }
+
+            case 4: {
+                miCurso.imprimirLista();
+                break;
+            }
+
+            case 5: {
+                curso* copia = miCurso.copiarCurso();
+                cout << "El curso fue copiado con un Shallow Copy\n";
+                delete copia;
+                break;
+            }
+
+        }
+    }
+    cout << "Programa finalizado.\n";
+    return 0;
 }
