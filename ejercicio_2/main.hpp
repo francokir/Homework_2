@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <algorithm>
+#include <memory>
 using namespace std;
 
 class estudiante
@@ -26,7 +28,7 @@ public:
 
 class curso {
 private:
-    vector<estudiante*> estudiantes;
+    vector<shared_ptr<estudiante>> estudiantes;
     static const int capacidad_maxima = 20; 
     string nombrecurso;
 public:
@@ -35,9 +37,8 @@ public:
 
     curso(const curso& otro);
 
-    curso& operator=(const curso& otro);
-    
-    bool inscribirEstudiante(estudiante* est);
+   
+    bool inscribirEstudiante(shared_ptr<estudiante>);
     bool desinscribirEstudiante(int legajo);
     bool estaInscripto(int legajo);
     bool estaCompleto();

@@ -29,13 +29,20 @@ void estudiante::agregarCurso(const string& nombrecurso, float nota) {
     cursos.push_back({nombrecurso, nota}); 
 }
 
+bool estudiante::operator<(const estudiante& otro) const {
+    return nombre_completo < otro.nombre_completo;
+}
 
+ostream& operator<<(ostream& os, const estudiante& est) {
+    os << "Nombre: " << est.nombre_completo << ", Legajo: " << est.legajo;
+    return os;
+}
 
 curso::curso(const string& nombre) {
     nombrecurso = nombre;
 }
 
-bool curso::inscribirEstudiante(estudiante* est){
+bool curso::inscribirEstudiante(shared_ptr<estudiante> est){
     if (estudiantes.size() < capacidad_maxima){
         estudiantes.push_back(est);
         return true;
@@ -68,21 +75,13 @@ bool curso::desinscribirEstudiante(int legajo){
     return false;
 }
 
-bool estudiante::operator<(const estudiante& otro) const {
-    return nombre_completo < otro.nombre_completo;
-}
-
-ostream& operator<<(ostream& os, const estudiante& est) {
-    os << "Nombre: " << est.nombre_completo << ", Legajo: " << est.legajo;
-    return os;
-}
 
 void curso::imprimirLista() const {
-    vector<estudiante*> estudiantesOrdenados = estudiantes;
-    sort(estudiantesOrdenados.begin(), estudiantesOrdenados.end(), [](estudiante* a, estudiante* b) {
+    vector<shared_ptr<estudiante>> estudiantesOrdenados = estudiantes;
+    sort(estudiantesOrdenados.begin(), estudiantesOrdenados.end(), [](shared_ptr<estudiante> a, shared_ptr<estudiante> b) {
                   return *a < *b;
         });
-    cout << "Estudiantes en orden alfabético:\n";
+    cout << "Estudiantes en orden alfabetico:\n";
     for (const auto& est : estudiantesOrdenados) {
         cout << *est << endl;
     }
@@ -96,15 +95,11 @@ curso::curso(const curso& otro)
     : nombrecurso(otro.nombrecurso), estudiantes(otro.estudiantes) {
 }
 
-/*Para ello sobrecargo el operador '=' "igual" que hace que si ya es igual devuelve*/
-curso& curso::operator=(const curso& otro) {
-    if (this == &otro) return *this;
-
-    nombrecurso = otro.nombrecurso;
-    estudiantes = otro.estudiantes; 
-
-    return *this;
-}
+/* Decidi implementar un shallow copy, como mi clase curso almacena shared ptr hacia objetos estudiantes, al copiar
+el curso, se copian los punteros pero no se duplican los estudiantes, esto hace que se puedan compartir estudiantes 
+entre varios curos y esto es eficiente en memoria. Al usar shared ptr, no me preocupo por la memoria, no la tengo que gestionar
+y por ejemplo cuando el ultimo curso que apunta a un estudiante se destruye, el estudiante tambien se destruye.
+*/
 
 curso* curso::copiarCurso() const {
     return new curso(*this);
@@ -142,17 +137,17 @@ int main() {
                 string nombre;
                 int legajo;
                 cout << "Ingresar nombre completo del estudiante: ";
+                cin.ignore();
                 getline(cin, nombre);
                 cout << "Ingresar legajo del estudiante: ";
                 cin >> legajo;
 
-                estudiante* nuevoEstudiante = new estudiante(nombre, legajo);
+                auto nuevoEstudiante = make_shared<estudiante>(nombre, legajo);
 
                 if (miCurso.inscribirEstudiante(nuevoEstudiante)) {
                     cout << "Estudiante inscripto.\n";
                 } else {
-                    cout << "El curso llego a su capacidad maxima, no se pudo inscribir al estudiante.\n";
-                    delete nuevoEstudiante;
+                    cout << "El curso ya esta lleno.\n";
                 }
                 break;
             }
@@ -163,7 +158,7 @@ int main() {
                 cin >> legajo;
 
                 if (miCurso.desinscribirEstudiante(legajo)) {
-                    cout << "el studiante fue desinscripto.\n";
+                    cout << "El estudiante fue desinscripto.\n";
                 } else {
                     cout << "No existe un estudiante con ese legajo.\n";
                 }
@@ -172,7 +167,7 @@ int main() {
 
             case 3: {
                 int legajo;
-                cout << "Ingresar el legajo del estudiante que quiere verificar su inscripcion: ";
+                cout << "Ingresar el legajo del estudiante: ";
                 cin >> legajo;
 
                 if (miCurso.estaInscripto(legajo)) {
@@ -189,14 +184,14 @@ int main() {
             }
 
             case 5: {
-                curso* copia = miCurso.copiarCurso();
-                cout << "El curso fue copiado con un Shallow Copy\n";
-                delete copia;
+                auto copia = miCurso.copiarCurso();
+                cout << "Curso copiado.\n";
+                delete copia; /*libero la memoria que se asigna en la copia*/
                 break;
             }
-
         }
     }
-    cout << "Programa finalizado.\n";
+
+    cout << "Saliste del menu.\n";
     return 0;
 }
