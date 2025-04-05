@@ -1,12 +1,17 @@
 #include <iostream>
-#include <sstream>
 #include "main.hpp"
 using namespace std;
 
+/*constructor de los enteros*/
 entero::entero(int v) {
     valor = v;
 }
-
+/*Como utilizo shared ptr, el dynamic cast sirve para convertir un puntero de la clase base numero, a uno de las 
+clases derivadas, en este caso entero. La suma como necesita trabajar con enteros y num seria un numero generico
+nos aseguramos de trabajar con enteros. La linea de codigo lo que hace es convertir el puntero &num a un
+puntero de tipo const entero*, si num era un complejo o real, ptr se convierte en null ptr, si no, se queda con el 
+real. Entiendo que dynamic cast lo que hace es verificar en tiempo de ejecucion que la conversion que intento hacer,
+sea valida. La explicacion aplica a la resta y la multiplicacion tambien. */
 shared_ptr<numero> entero::suma(const numero& num) const {
     const entero* ptr = dynamic_cast<const entero*>(&num);
     if (ptr) {
@@ -30,7 +35,7 @@ shared_ptr<numero> entero::multiplicacion(const numero& num) const {
     }
     return nullptr;
 }
-
+/*simplemente utilizo el to_string, puedo hacerlo ya que es un entero*/
 string entero::toString() const {
     return to_string(valor);
 }
@@ -39,6 +44,7 @@ real::real(float v) {
     num = v;
 }
 
+/*Misma explicacion que los enteros, uso dynamic cast, para las 3 operaciones*/
 shared_ptr<numero> real::suma(const numero& num) const {
     const real* ptr = dynamic_cast<const real*>(&num);
     if (ptr) {
@@ -63,16 +69,20 @@ shared_ptr<numero> real::multiplicacion(const numero& num) const {
     return nullptr;
 }
 
+/*sigo pudiendo utilizar el to_string, es simplemente un numero real*/
 string real::toString() const {
     return to_string(num);
 }   
 
 
+/*constructor de un numero complejo, con su parte real e imaginaria*/
 complejo::complejo(float r, float i) {
     real = r;
     imaginario = i;
 }
 
+/*Utilizo dynamic cast, como en las anteriores, pero sumo la parte real con la parte real y la imaginaria con la 
+imaginaria, hago lo mismo para la resta*/
 shared_ptr<numero> complejo::suma(const numero& num) const {
     const complejo* ptr = dynamic_cast<const complejo*>(&num);
     if (ptr) {
@@ -89,7 +99,8 @@ shared_ptr<numero> complejo::resta(const numero& num) const {
     return nullptr;
 }
 
-/* formula para multiplicar complejos : (a+bi)⋅(c+di)=(ac−bd)+(ad+bc)i*/
+/* formula para multiplicar complejos : (a+bi)⋅(c+di)=(ac−bd)+(ad+bc)i
+Vuelvo a utilizar dynamic cast y la operacion se basa en la formula de arriba.*/
 shared_ptr<numero> complejo::multiplicacion(const numero& num) const {     
     const complejo* ptr = dynamic_cast<const complejo*>(&num);
     if (ptr) {
@@ -100,16 +111,15 @@ shared_ptr<numero> complejo::multiplicacion(const numero& num) const {
     return nullptr;
 }
 
+/*Uso to_string, pero separando por partes la real y la imaginaria, si es positiva esta ultima, concateno el +
+, si es negativa, directament se pone con el - y concateno la i*/
 string complejo::toString() const {
-    ostringstream os;
-    os << real;
-
+    string resultado = to_string(real);
     if (imaginario >= 0) {
-        os << "+"; 
+        resultado += " + ";
     }
-   
-    os << imaginario << "i"; 
-    return os.str();
+    resultado += to_string(imaginario) + "i";
+    return resultado;
 }
 
 int main() {
@@ -126,7 +136,7 @@ int main() {
 
         if (opcion == 4) break;
 
-        if (opcion == 1) { // Entero
+        if (opcion == 1) { 
             int v1, v2;
             cout << "Ingrese un numero entero: ";
             cin >> v1;
