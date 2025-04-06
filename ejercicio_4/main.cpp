@@ -80,22 +80,104 @@ void usarCajaAhorroComoRespaldo(CuentaCorriente& cuentaCorriente, CajaDeAhorro& 
 }
 
 int main() {
-    CajaDeAhorro caja(1000, "Franco Kirchheimer");
-    CuentaCorriente corriente(500, "Franco Barravecchia");
+    double monto;
+    int opcion = -1;
 
-    caja.mostrarInfo();
-    caja.mostrarInfo();
-    caja.mostrarInfo();
-    caja.mostrarInfo();
-    
-    corriente.mostrarInfo();
-    corriente.retirar(600);
-    corriente.retirar(500);
-    corriente.mostrarInfo();
+    double saldoCaja, saldoCorriente;
+    string titularCaja, titularCorriente;
 
-    usarCajaAhorroComoRespaldo(corriente, caja, 200);
+    cout << "Ingrese saldo inicial de la Caja de Ahorro: ";
+    cin >> saldoCaja;
+    cin.ignore();
 
-    return 0;
+    cout << "Ingrese titular de la Caja de Ahorro: ";
+    getline(cin, titularCaja);
+
+    cout << "Ingrese saldo inicial de la Cuenta Corriente: ";
+    cin >> saldoCorriente;
+    cin.ignore();
+
+    cout << "Ingrese titular de la Cuenta Corriente: ";
+    getline(cin, titularCorriente);
+
+    CajaDeAhorro caja(saldoCaja, titularCaja);
+    CuentaCorriente corriente(saldoCorriente, titularCorriente);
+
+    while (true) {
+        cout << "\n--- MENU ---\n";
+        cout << "1. Mostrar info Caja de Ahorro\n";
+        cout << "2. Mostrar info Cuenta Corriente\n";
+        cout << "3. Retirar de Caja de Ahorro\n";
+        cout << "4. Retirar de Cuenta Corriente\n";
+        cout << "5. Usar Caja como respaldo\n";
+        cout << "0. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Entrada inválida. Intente de nuevo.\n";
+            continue;
+        }
+
+        switch(opcion) {
+            case 1:
+                caja.mostrarInfo();
+                break;
+
+            case 2:
+                corriente.mostrarInfo();
+                break;
+
+            case 3:
+                cout << "Monto a retirar: ";
+                cin >> monto;
+                if (caja.retirar(monto)) {
+                    cout << "Se pudo retirar el dinero de la Caja de Ahorro.\n";
+                } else {
+                    cout << "No se pudo retirar dinero de la Caja de Ahorro.\n";
+                }
+                break;
+
+            case 4:
+                cout << "Monto a retirar: ";
+                cin >> monto;
+                if (corriente.retirar(monto)) {
+                    cout << "Se pudo retirar el dinero de la Cuenta Corriente.\n";
+                } else {
+                    cout << "No se pudo retirar dinero de la Cuenta Corriente.\n";
+                }
+                break;
+
+            case 5: {
+                cout << "Monto a retirar: ";
+                cin >> monto;
+
+                double balanceInicialCorriente = corriente.getBalance();
+                double balanceInicialCaja = caja.getBalance();
+
+                usarCajaAhorroComoRespaldo(corriente, caja, monto);
+
+                double balanceFinalCorriente = corriente.getBalance();
+                double balanceFinalCaja = caja.getBalance();
+
+                if (balanceFinalCorriente != balanceInicialCorriente) {
+                    cout << "Retiro exitoso desde la Cuenta Corriente.\n";
+                } else if (balanceFinalCaja != balanceInicialCaja) {
+                    cout << "Retiro exitoso desde la Caja de Ahorro como respaldo.\n";
+                } else {
+                    cout << "No se pudo realizar el retiro.\n";
+                }
+                break;
+            }
+
+            case 0:
+                cout << "Saliendo del programa.\n";
+                return 0;
+
+            default:
+                cout << "Opcion invalida.\n";
+        }
+    }
 }
-
-

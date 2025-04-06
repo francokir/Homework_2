@@ -2,6 +2,7 @@
 #include "main.hpp"
 #include <iomanip>
 
+/*constructor default, no se le pasa nada*/
 Tiempo::Tiempo(){
     horas = 0;
     minutos = 0;
@@ -9,6 +10,7 @@ Tiempo::Tiempo(){
     parte_dia = "a.m.";
 }
 
+/*constructor pasandole las horas, los otros valores son predeterminados, se chequea que la hora tenga sentido*/
 Tiempo::Tiempo(int h){
     if (h < 1 || h > 12) {
         cout << "Hora fuera del rango" << endl;
@@ -20,6 +22,7 @@ Tiempo::Tiempo(int h){
     parte_dia = "a.m.";
 }
 
+/*constructor pasandole horas y minutos, con chequeo, otros valores predeterminados*/
 Tiempo::Tiempo(int h, int m){
     if (h < 1 || h > 12) {
         cout << "Hora fuera del rango" << endl;
@@ -35,6 +38,7 @@ Tiempo::Tiempo(int h, int m){
     parte_dia = "a.m.";
 }
 
+/*constructor pasandole horas, minutos y segundos, la parte del dia queda como a.m.*/
 Tiempo::Tiempo(int h, int m, int s){
     if (h < 1 || h > 12) {
         cout << "Hora fuera del rango" << endl;
@@ -54,6 +58,7 @@ Tiempo::Tiempo(int h, int m, int s){
     parte_dia = "a.m.";
 }
 
+/*constructor pasandole todos los parametros*/
 Tiempo::Tiempo(int h, int m, int s, string pd){
     if (h < 1 || h > 12) {
         cout << "Hora fuera del rango" << endl;
@@ -77,22 +82,28 @@ Tiempo::Tiempo(int h, int m, int s, string pd){
     parte_dia = pd;
 }
 
+/*metodo que devuelve las hs*/
 int Tiempo::getHoras() const {
     return horas;
 }
 
+/*metodo que devuelve los minutos*/
 int Tiempo::getMinutos() const {
     return minutos;
 }
 
+/*metodo que devuelve los segundos*/
 int Tiempo::getSegundos() const {
     return segundos;
 }
 
+/*metodo que devuelve la parte del dia*/
 string Tiempo::getParteDia() const {
     return parte_dia;
 }
 
+/*metodo que devuelve el tiempo completo, se usa la libreria recomendada , por lo entendido, el setw da a entender la cantidad de caracteres que ocupara lo que se imprime
+, el setfill, si lo que se imprime no ocupa los caracteres necesarios , lo rellena con 0s en este caso, tiene sentido, si quiero poner que son las 3 y 7, completaria 03:07*/
 string Tiempo::getTiempoCompleto() const {
     ostringstream oss;
     oss << setw(2) << setfill('0') << horas << "h, "
@@ -102,6 +113,7 @@ string Tiempo::getTiempoCompleto() const {
     return oss.str();
 }
 
+/*metodo para determinar las horas*/
 void Tiempo::setHoras(int h) {
     if (h >= 1 && h <= 12) {
         horas = h;
@@ -110,6 +122,7 @@ void Tiempo::setHoras(int h) {
     }
 }
 
+/*metodo para determinar los minutos*/
 void Tiempo::setMinutos(int m) {
     if (m >= 0 && m <= 59) {
         minutos = m;
@@ -118,6 +131,7 @@ void Tiempo::setMinutos(int m) {
     }
 }
 
+/*metodo para determinar los segundos*/
 void Tiempo::setSegundos(int s) {
     if (s >= 0 && s <= 59) {
         segundos = s;
@@ -126,6 +140,7 @@ void Tiempo::setSegundos(int s) {
     }
 }
 
+/*metodo para determinar la parte del dia*/
 void Tiempo::setParteDia(const string& pd) {
     if (pd == "a.m." || pd == "p.m.") {
         parte_dia = pd;
@@ -134,6 +149,8 @@ void Tiempo::setParteDia(const string& pd) {
     }
 }
 
+/*para imprimir la hora en formato 24hs, primero determino que hora poner dependiendo de la parte del dia, si es pm se le suman 12, y luego imprimo con la misma logica
+que utilice para el get tiempo completo, rellenando con el setfill.*/
 void Tiempo::tiempo24hs() const {
     int horas24 = horas; 
     

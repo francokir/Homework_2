@@ -4,19 +4,24 @@
 #include "main.hpp"
 using namespace std;
 
+/*constructor de la clase estudiante*/
 estudiante::estudiante(string nombre, int legajo) {
     nombre_completo = nombre;
     this->legajo = legajo;
 }
 
+/*para obtener el nombre completo del estudiante*/
 string estudiante::getNombreCompleto()const {
     return nombre_completo;
 }
 
+/*para obtener el legajo del estudiante*/
 int estudiante::getLegajo() const {
     return legajo;
 }
 
+/*para obtener el promedio general, voy sumando el segundo elemento del par cursos, que dice el nombre del curso, y la nota (segundo elem)
+los sumo todos y los divido por la cantidad de cursos */
 float estudiante::getPromedioGeneral() const {
     float suma = 0.0;
         for (const auto& par : cursos) {
@@ -25,23 +30,29 @@ float estudiante::getPromedioGeneral() const {
         return suma / cursos.size();
 }
 
+/*para agregar un curso aprovecho el pushback dado que implemente vectores*/
 void estudiante::agregarCurso(const string& nombrecurso, float nota) {
     cursos.push_back({nombrecurso, nota}); 
 }
 
+/*como pedia la consigna, sobrescribo el operador '<' para comparar nombres, y que sepa ordenar estudiantes, por su nombre de forma alfabetica*/
 bool estudiante::operator<(const estudiante& otro) const {
     return nombre_completo < otro.nombre_completo;
 }
 
+/*y aca sobreescribo el operador << como pedia la consigna, para imprimir de forma mucho mas sencilla los datos del estudiante, basicamente imprime el nombre y su legajo
+como implemente a continuacion*/
 ostream& operator<<(ostream& os, const estudiante& est) {
     os << "Nombre: " << est.nombre_completo << ", Legajo: " << est.legajo;
     return os;
 }
 
+/*constructor del curso*/
 curso::curso(const string& nombre) {
     nombrecurso = nombre;
 }
 
+/*la forma de inscribir un estudiante es con un push back, verificando que siga habiando capacidad en el curso, el estudiante es un shared ptr (hay explicaciones mas adelante)*/
 bool curso::inscribirEstudiante(shared_ptr<estudiante> est){
     if (estudiantes.size() < capacidad_maxima){
         estudiantes.push_back(est);
@@ -52,6 +63,7 @@ bool curso::inscribirEstudiante(shared_ptr<estudiante> est){
     }
 }
 
+/*se lo busca por legajo para ver si esta inscripto, recorriendo todos los estudiantes si hace falta*/
 bool curso::estaInscripto(int legajo){
     for (const auto &est : estudiantes) {
         if (est->getLegajo() == legajo) {
@@ -61,10 +73,13 @@ bool curso::estaInscripto(int legajo){
     return false;
 }
 
+/*si esta completo significa que la cantidad de estudiantes es iugual a la capacidad maxima*/
 bool curso::estaCompleto(){
     return (curso::capacidad_maxima == estudiantes.size());
 }
 
+/*aca es donde tuve que buscar soluciones nuevas, tuve que recordar cosas de algoritmos y estructuras, ya que a la funcion erase, no se le podia pasar , por ejemplo, el legajo,
+aunque estaria bueno. Implemente un iterador que recorre todos los estudiantes basicamente, y cuando encuentre al que tenga el legajo del que se quiere desinscribir, se hace un erase*/
 bool curso::desinscribirEstudiante(int legajo){
     for (auto it = estudiantes.begin(); it != estudiantes.end(); ++it) {
         if ((*it)->getLegajo() == legajo) {
@@ -76,6 +91,8 @@ bool curso::desinscribirEstudiante(int legajo){
 }
 
 
+/*para imprimir la lista, los ordeno con un sort, aca tuve que googlear como funcionaba bien la funcion en este lenguaje, se le pasa el inicio y el final, en este caso del vector,
+y una funcion lambda que indica el criterio del ordenamiento, en este caso uso el operador sobreescrito para ordenar los nombres de forma alfabetica*/
 void curso::imprimirLista() const {
     vector<shared_ptr<estudiante>> estudiantesOrdenados = estudiantes;
     sort(estudiantesOrdenados.begin(), estudiantesOrdenados.end(), [](shared_ptr<estudiante> a, shared_ptr<estudiante> b) {
